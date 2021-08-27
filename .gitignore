@@ -1,0 +1,12 @@
+﻿/.idea
+*/.*
+**/$*
+**/bin/*
+**/build/*
+**/logs/*
+**/.idea
+*.log
+*.info
+**/node_modules/
+**/dist
+.eslintcache
