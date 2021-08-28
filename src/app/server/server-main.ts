@@ -1,4 +1,3 @@
-import './main.scss';
 import {Container, Inject} from 'typescript-ioc';
 import {ServerPlayerManager} from './player/server-player.manager';
 

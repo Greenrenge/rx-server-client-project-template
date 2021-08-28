@@ -4,7 +4,9 @@ import {SharedPlayerService} from '../../shared/player/shared-player.service';
 
 @Singleton
 export class ClientPlayerService extends SharedPlayerService {
-   public constructor(@Inject private readonly wrapper: ClientPlayerWrapper) {
+   public constructor(
+      @Inject private readonly wrapper: ClientPlayerWrapper,
+   ) {
       super();
    }
 }
