@@ -1,16 +1,31 @@
 import * as path from 'path';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import HtmlWebPackPlugin from 'html-webpack-plugin';
-import {CleanWebpackPlugin} from 'clean-webpack-plugin';
 // @ts-ignore
-import {Configuration, HotModuleReplacementPlugin, Plugin} from 'webpack';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+// @ts-ignore
+import HtmlWebPackPlugin from 'html-webpack-plugin';
+// @ts-ignore
+import {CleanWebpackPlugin} from 'clean-webpack-plugin';
+import {Configuration, HotModuleReplacementPlugin} from 'webpack';
+// @ts-ignore
+import OptimizeJsPlugin from 'optimize-js-plugin';
+// @ts-ignore
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 // @ts-ignore
 import ReplaceInFileWebpackPlugin from 'replace-in-file-webpack-plugin';
+// @ts-ignore
 import TerserPlugin from 'terser-webpack-plugin';
 // @ts-ignore
-import {Tapable} from 'tapable';
+import ThreadsPlugin from 'threads-plugin';
+// @ts-ignore
+import nodeExternals from 'webpack-node-externals';
+// @ts-ignore
+import HtmlWebpackPartialsPlugin from 'html-webpack-partials-plugin';
 
-interface Target {
+type ProjectTargets = { [key in ProjectTargetName]: ProjectTarget };
+
+type ProjectTargetName = 'client' | 'server';
+
+interface ProjectTarget {
    readonly entry: string;
    readonly distDir: string;
    readonly output: string;
@@ -21,81 +36,122 @@ interface Target {
    readonly baseUrl?: string;
 }
 
-const target: Target = {
-   entry: 'src/main.ts',
-   distDir: 'dist',
-   output: 'main.js',
-   target: 'web',
-   title: 'Template',
-   assetDir: 'asset',
-   distAssetDir: 'asset',
-   baseUrl: '.',
+
+const projectTargets: ProjectTargets = {
+   client: {
+      entry: 'src/app/client/client-main.ts',
+      distDir: 'dist/client',
+      output: 'main.js',
+      target: 'web',
+      title: 'Client version',
+      assetDir: 'src/asset',
+      distAssetDir: 'asset',
+      baseUrl: '.',
+   },
+   server: {
+      entry: 'src/app/server/server-main.ts',
+      distDir: 'dist/server',
+      output: 'main.js',
+      target: 'node',
+   },
 };
 
-module.exports = (env: string, argv: { [key: string]: string }): Configuration => {
+export const webpackConfiguration = (env: string, argv: { [key: string]: string }, targetName: ProjectTargetName): Configuration => {
+//module.exports = (env: string, argv: { [key: string]: string }): Configuration => {
    function isProd(): boolean {
       return argv.mode === 'production';
    }
 
+   const target = projectTargets[targetName];
+   console.log('Target:', targetName, target);
    console.log('Entry: ', path.resolve(__dirname, target.entry));
    console.log('Output path: ', path.resolve(__dirname, target.distDir));
 
    /*
     * Plugins
     */
-   const plugins: unknown[] = [
+   const plugins = [
       new MiniCssExtractPlugin({
          filename: '[name].bundle.css',
          chunkFilename: '[id].css',
       }),
    ];
-   if (isProd()) {
+   if (isProd() && (targetName === 'client' || targetName === 'server')) {
       plugins.push(
          new CleanWebpackPlugin({
             cleanOnceBeforeBuildPatterns: [path.resolve(__dirname, target.distDir + '/**/*')],
          }),
       );
    }
-   plugins.push();
-   if (isProd()) {
+   if (targetName === 'client') {
       plugins.push(
-         new ReplaceInFileWebpackPlugin([
-            {
-               dir: target.distDir,
-               files: ['index.html'],
-               rules: [
-                  {
-                     search: target.output,
-                     replace: `${target.output}?${Date.now()}`,
-                  },
-                  {
-                     search: `<meta name='base' content='${target.baseUrl}'>`,
-                     replace: `<meta name='base' content='${target.baseUrl}'>\n
-                  <meta http-equiv='cache-control' content='no-cache' />`,
-                  },
-               ],
-            },
-         ]),
-         // new CopyWebpackPlugin({patterns: [{from: target.assetDir, to: target.distAssetDir}]}),
+         //new ThreadsPlugin({
+         //   globalObject: 'self',
+         //}),
       );
-   } else {
-      plugins.push(new HotModuleReplacementPlugin());
+      if (isProd()) {
+         plugins.push(
+            new ReplaceInFileWebpackPlugin([
+               {
+                  dir: target.distDir,
+                  files: [target.output],
+                  rules: [
+                     {
+                        search: '.worker.js',
+                        replace: '.worker.js?' + Date.now(),
+                     },
+                  ],
+               },
+            ]),
+            new ReplaceInFileWebpackPlugin([
+               {
+                  dir: target.distDir,
+                  files: ['index.html'],
+                  rules: [
+                     {
+                        // Avoid caching after build
+                        search: target.output,
+                        replace: `${target.output}?${Date.now()}`,
+                     },
+                     // {
+                     //    search: `<meta name="base" content="${target.baseUrl}">`,
+                     //    replace: `<meta name="base" content="${target.baseUrl}">\n<meta http-equiv="cache-control" content="no-cache" />`
+                     // }
+                  ],
+               },
+            ]),
+            new CopyWebpackPlugin({patterns: [{from: target.assetDir, to: target.distAssetDir}]}),
+         );
+      } else {
+         plugins.push(new HotModuleReplacementPlugin());
+      }
+      plugins.push(
+         new HtmlWebPackPlugin({
+            filename: 'index.html',
+            title: target.title,
+            meta: {
+               base: '/',
+               viewport: 'width=device-width, initial-scale=1, shrink-to-fit=no',
+               'theme-color': '#000000',
+            },
+         }),
+      );
+
+      // plugins.push(
+      //    new HtmlWebpackPartialsPlugin({
+      //      path: './src/main/client/index.partial.html',
+      //   }),
+      //);
    }
-   plugins.push(
-      new HtmlWebPackPlugin({
-         filename: 'index.html',
-         title: target.title,
-         meta: {
-            base: '/',
-            viewport: 'width=device-width, initial-scale=1, shrink-to-fit=no',
-         },
-      }),
-   );
 
    /*
     * Minimizers
     */
-   const minimizers: unknown[] = [];
+   const minimizers = [
+      // new OptimizeJsPlugin({
+      //   sourceMap: !isProd(),
+      // }),
+   ];
 
    if (isProd() && target.target === 'web') {
       minimizers.push(
@@ -115,13 +171,21 @@ module.exports = (env: string, argv: { [key: string]: string }): Configuration =
 
    return {
       entry: path.resolve(__dirname, target.entry),
+      watch: !isProd(),
       output: {
          path: path.resolve(__dirname, target.distDir),
          filename: target.output,
          pathinfo: false,
       },
       target: target.target,
-      externals: [],
+      externals:
+         target.target === 'node'
+            ? [
+               nodeExternals({
+                  // whitelist: [/^three/, /^shared/],
+               }),
+            ]
+            : [],
       resolve: {
          extensions: [
             '.tsx',
@@ -142,6 +206,10 @@ module.exports = (env: string, argv: { [key: string]: string }): Configuration =
                use: [
                   'style-loader',
                   'css-loader',
+                  {
+                     loader: 'resolve-url-loader',
+                     options: {},
+                  },
                   'sass-loader',
                ],
             },
@@ -204,9 +272,9 @@ module.exports = (env: string, argv: { [key: string]: string }): Configuration =
          ],
       },
       optimization: {
-         minimize: isProd(),
-         minimizer: minimizers as Array<Plugin | Tapable.Plugin>,
+         minimize: false, // isProd(),
+         minimizer: minimizers,
       },
-      plugins: plugins as Array<Plugin | Tapable.Plugin>,
+      plugins: plugins,
    };
 };
