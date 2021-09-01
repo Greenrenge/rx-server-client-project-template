@@ -1,6 +1,7 @@
-import {Container, Inject} from 'typescript-ioc';
+import {Container, Inject, OnlyInstantiableByContainer} from 'typescript-ioc';
 import {ServerPlayerManager} from './player/server-player.manager';
 
+@OnlyInstantiableByContainer
 class ServerMain {
    public constructor(
       @Inject private readonly player: ServerPlayerManager,

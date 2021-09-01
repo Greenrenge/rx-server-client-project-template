@@ -1,0 +1,65 @@
+import {SharedSocketIoWrapper} from '../../shared/network/shared-socket-io.wrapper';
+import {Singleton} from 'typescript-ioc';
+import {ClientNetwork} from './client-network.model';
+import {fromEvent, Subject, takeUntil, tap} from 'rxjs';
+import {io, Socket} from 'socket.io-client';
+
+@Singleton
+export class ClientSocketIoWrapper<T> extends SharedSocketIoWrapper implements ClientNetwork<T> {
+   private readonly connectedSubject = new Subject<void>();
+   readonly connected$ = this.connectedSubject.asObservable();
+
+   private readonly disconnectedSubject = new Subject<void>();
+   readonly disconnected$ = this.disconnectedSubject.asObservable();
+
+   private readonly dataSubject = new Subject<T>();
+   readonly data$ = this.dataSubject.asObservable();
+
+   private readonly disconnectSubject = new Subject<void>();
+   readonly disconnect$ = this.disconnectSubject.asObservable();
+
+   private socket?: Socket;
+
+   connect(host: string): void {
+      this.disconnect();
+      this.socket = io(host, {autoConnect: false});
+      this.initListeners();
+      this.socket.connect();
+   }
+
+   disconnect(): void {
+      if (this.socket) {
+         this.socket.disconnect();
+         this.socket = null;
+         this.disconnectSubject.next();
+      }
+   }
+
+   private initListeners(): void {
+      fromEvent(this.socket, ClientSocketIoWrapper.EVENT_CONNECTED)
+         .pipe(
+            tap(() => console.log('Socket connected')),
+            takeUntil(this.disconnect$),
+         )
+         .subscribe(() => this.connectedSubject.next());
+      fromEvent(this.socket, ClientSocketIoWrapper.EVENT_DISCONNECTED)
+         .pipe(
+            tap(() => console.log('Socket disconnected')),
+            takeUntil(this.disconnect$),
+         )
+         .subscribe(() => this.disconnectedSubject.next());
+      fromEvent(this.socket, ClientSocketIoWrapper.EVENT_DATA)
+         .pipe(
+            takeUntil(this.disconnect$),
+         )
+         .subscribe((data: T) => this.dataSubject.next(data));
+   }
+
+   isConnected(): boolean {
+      return this.socket?.connected ?? false;
+   }
+
+   send(data: T): void {
+      this.socket.emit(ClientSocketIoWrapper.EVENT_DATA, data);
+   }
+}

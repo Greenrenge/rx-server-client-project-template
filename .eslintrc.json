@@ -13,7 +13,11 @@
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-empty-function": "off",
-      "arrow-body-style": ["error", "as-needed"],
+      "@typescript-eslint/no-empty-interface": "off",
+      "arrow-body-style": [
+         "error",
+         "as-needed"
+      ],
       "no-undef": "off",
       "comma-dangle": [
          "error",

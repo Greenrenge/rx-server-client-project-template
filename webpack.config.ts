@@ -36,7 +36,6 @@ interface ProjectTarget {
    readonly baseUrl?: string;
 }
 
-
 const projectTargets: ProjectTargets = {
    client: {
       entry: 'src/app/client/client-main.ts',
@@ -57,7 +56,6 @@ const projectTargets: ProjectTargets = {
 };
 
 export const webpackConfiguration = (env: string, argv: { [key: string]: string }, targetName: ProjectTargetName): Configuration => {
-//module.exports = (env: string, argv: { [key: string]: string }): Configuration => {
    function isProd(): boolean {
       return argv.mode === 'production';
    }
@@ -70,7 +68,7 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
    /*
     * Plugins
     */
-   const plugins = [
+   const plugins: unknown[] = [
       new MiniCssExtractPlugin({
          filename: '[name].bundle.css',
          chunkFilename: '[id].css',
@@ -83,11 +81,12 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
          }),
       );
    }
+   console.log(targetName, targetName==='client')
    if (targetName === 'client') {
       plugins.push(
-         //new ThreadsPlugin({
-         //   globalObject: 'self',
-         //}),
+         new ThreadsPlugin({
+            globalObject: 'self',
+         }),
       );
       if (isProd()) {
          plugins.push(
@@ -148,9 +147,9 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
     * Minimizers
     */
    const minimizers = [
-      // new OptimizeJsPlugin({
-      //   sourceMap: !isProd(),
-      // }),
+      new OptimizeJsPlugin({
+         sourceMap: !isProd(),
+      }),
    ];
 
    if (isProd() && target.target === 'web') {
@@ -206,26 +205,21 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
                use: [
                   'style-loader',
                   'css-loader',
-                  {
-                     loader: 'resolve-url-loader',
-                     options: {},
-                  },
+                  'resolve-url-loader',
                   'sass-loader',
                ],
             },
             {
                test: /\.tsx?$/,
                use: [
-                  {
-                     loader: 'babel-loader',
-                  },
+                  'babel-loader',
                   {
                      loader: 'ts-loader',
                      options: {
                         transpileOnly: true, // Disabled due to performance reasons
                         experimentalWatchApi: !isProd(),
                         compilerOptions: {
-                           module: 'esnext',
+                           // module: 'esnext',
                         },
                      },
                   },
@@ -263,11 +257,7 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
             },
             {
                test: /\.(gltf)$/,
-               use: [
-                  {
-                     loader: 'gltf-webpack-loader',
-                  },
-               ],
+               use: ['gltf-webpack-loader'],
             },
          ],
       },
@@ -275,6 +265,7 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
          minimize: false, // isProd(),
          minimizer: minimizers,
       },
+      // @ts-ignore
       plugins: plugins,
    };
 };

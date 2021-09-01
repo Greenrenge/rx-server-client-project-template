@@ -3,7 +3,7 @@
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
       "esModuleInterop": true,
-      "target": "es6",
+      "target": "es5",
       "noImplicitAny": true,
       "moduleResolution": "node",
       "removeComments": true,
@@ -14,14 +14,14 @@
       "outDir": "build",
       "alwaysStrict": true,
       "downlevelIteration": true,
-      "baseUrl": "./"
+      "baseUrl": "./",
    },
    "include": [
       "src/app/**/*.ts"
    ],
    "exclude": [
-      "node_modules",
+      "**/node_modules/**",
       "**/*.spec.ts",
-      "**/dist**"
+      "dist/**"
    ]
 }
