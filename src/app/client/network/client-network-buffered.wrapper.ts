@@ -4,7 +4,7 @@ import {ClientEventNetwork} from './client-network.model';
 import {NetworkDataType, NetworkEvent, NetworkMessage, NetworkPayload} from '../../shared/network/shared-network.model';
 import {map, mergeMap, Observable, Subject} from 'rxjs';
 import {ClientConfig} from '../config/client-config';
-import {TimeMapBuffer} from '../../shared/time-buffer/time-map-buffer';
+import {TimeMapBuffer} from '../../shared/time-map-buffer/time-map-buffer';
 import {mapNetworkMessages} from './client-network-buffered.wrapper.utils';
 
 @Singleton
