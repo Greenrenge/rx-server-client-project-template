@@ -5,8 +5,7 @@ import {NetworkDataType, NetworkEvent, NetworkMessage, NetworkPayload} from '../
 import {map, mergeMap, Observable, Subject} from 'rxjs';
 import {ClientConfig} from '../config/client-config';
 import {TimeMapBuffer} from '../../shared/time-buffer/time-map-buffer';
-
-// TODO: Extract KeyValueBuffer class
+import {mapNetworkMessages} from './client-network-buffered.wrapper.utils';
 
 @Singleton
 export class ClientNetworkBufferedWrapper implements ClientEventNetwork<NetworkMessage> {
@@ -28,7 +27,7 @@ export class ClientNetworkBufferedWrapper implements ClientEventNetwork<NetworkM
          .pipe(mergeMap(data => data))
          .subscribe(message => this.dataSubject.next(message));
       this.buffer.data$
-         .pipe(map((data) => data.map(([event, value]) => ({event, value} as NetworkMessage))))
+         .pipe(map((data) => mapNetworkMessages(data)))
          .subscribe(messages => this.sendMessagesToThread(messages));
       this.buffer.setFrameLengthMs(this.bufferTimerMs);
       this.buffer.setDefaultValue({});
