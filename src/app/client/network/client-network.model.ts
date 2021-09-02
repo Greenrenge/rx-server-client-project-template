@@ -21,7 +21,7 @@ export interface ClientNetwork<T> extends AbstractClientNetwork<T> {
    send(data: T): void;
 }
 
-export interface ClientAsyncNetwork<T> {
+export interface ClientNetworkUsingOnlyFunctions<T> {
    onConnected(): Observable<void>;
 
    onDisconnected(): Observable<void>;

@@ -2,11 +2,11 @@ import {Container, Inject, Singleton} from 'typescript-ioc';
 import {ClientSocketIoWrapper} from './client-socket-io.wrapper';
 import {map, Observable} from 'rxjs';
 import {MsgpackJsonEncoder} from '../../shared/network/msgpack-json-encoder';
-import {ClientAsyncNetwork} from './client-network.model';
+import {ClientNetworkUsingOnlyFunctions} from './client-network.model';
 import {expose} from 'threads';
 
 @Singleton
-export class ClientNetworkThread<T> implements ClientAsyncNetwork<T> {
+export class ClientNetworkThread<T> implements ClientNetworkUsingOnlyFunctions<T> {
    constructor(
       @Inject private readonly wrapper: ClientSocketIoWrapper<Buffer>,
       @Inject private readonly encoder: MsgpackJsonEncoder<T>,
