@@ -14,7 +14,7 @@
       "start:dev:server": "node --inspect dist/server/main.js --trace-warnings",
       "start:server": "node dist/server/main.js",
       "start": "npm run start:server",
-      "test": "jest",
+      "test": "jest --silent",
       "lint": "eslint ./src/app/ --ext .ts",
       "lint:fix": "eslint --fix ./src/app/ --ext .ts"
    },
