@@ -11,7 +11,7 @@ export class TimeMapBuffer<K, V> {
    private lastSentTime = 0;
    private enabled = false;
    private frameLengthMs = 0;
-   private defaultValue: V;
+   private defaultValue?: V;
 
    constructor() {
       this.loopBind = this.loop.bind(this);
