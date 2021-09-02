@@ -79,13 +79,5 @@
       "typescript-ioc": "3.2.2",
       "utf-8-validate": "^5.0.3",
       "zlib": "^1.0.5"
-   },
-   "jest": {
-      "roots": [
-         "<rootDir>"
-      ],
-      "transform": {
-         "^.+\\.(ts)$": "ts-jest"
-      }
    }
 }
