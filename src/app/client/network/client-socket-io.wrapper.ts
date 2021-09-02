@@ -1,11 +1,12 @@
-import {SharedSocketIoWrapper} from '../../shared/network/shared-socket-io.wrapper';
+import {SharedSocketWrapper} from '../../shared/network/shared-socket.wrapper';
 import {Singleton} from 'typescript-ioc';
 import {ClientNetwork} from './client-network.model';
-import {fromEvent, Subject, takeUntil, tap} from 'rxjs';
+import {fromEvent, Subject, takeUntil} from 'rxjs';
 import {io, Socket} from 'socket.io-client';
+import {SocketEvent} from '../../shared/network/shared-socket.wrapper.model';
 
 @Singleton
-export class ClientSocketIoWrapper<T> extends SharedSocketIoWrapper implements ClientNetwork<T> {
+export class ClientSocketIoWrapper<T> extends SharedSocketWrapper implements ClientNetwork<T> {
    private readonly connectedSubject = new Subject<void>();
    readonly connected$ = this.connectedSubject.asObservable();
 
@@ -36,22 +37,14 @@ export class ClientSocketIoWrapper<T> extends SharedSocketIoWrapper implements C
    }
 
    private initListeners(): void {
-      fromEvent(this.socket, ClientSocketIoWrapper.EVENT_CONNECTED)
-         .pipe(
-            tap(() => console.log('Socket connected')),
-            takeUntil(this.disconnect$),
-         )
+      fromEvent(this.socket, SocketEvent.CONNECT)
+         .pipe(takeUntil(this.disconnect$))
          .subscribe(() => this.connectedSubject.next());
-      fromEvent(this.socket, ClientSocketIoWrapper.EVENT_DISCONNECTED)
-         .pipe(
-            tap(() => console.log('Socket disconnected')),
-            takeUntil(this.disconnect$),
-         )
+      fromEvent(this.socket, SocketEvent.DISCONNECT)
+         .pipe(takeUntil(this.disconnect$))
          .subscribe(() => this.disconnectedSubject.next());
-      fromEvent(this.socket, ClientSocketIoWrapper.EVENT_DATA)
-         .pipe(
-            takeUntil(this.disconnect$),
-         )
+      fromEvent(this.socket, SocketEvent.DATA)
+         .pipe(takeUntil(this.disconnect$))
          .subscribe((data: T) => this.dataSubject.next(data));
    }
 
@@ -60,6 +53,6 @@ export class ClientSocketIoWrapper<T> extends SharedSocketIoWrapper implements C
    }
 
    send(data: T): void {
-      this.socket.emit(ClientSocketIoWrapper.EVENT_DATA, data);
+      this.socket.emit(SocketEvent.DATA, data);
    }
 }
