@@ -19,7 +19,7 @@ export class ClientNetworkService {
    private readonly joinResponse$: Observable<LoginResponse>;
    readonly loginOk$: Observable<SuccessfulLoginResponse>;
    readonly loginFailed$: Observable<LoginStatus>;
-   readonly dataStore$: Observable<Stores>;
+   readonly storeData$: Observable<Stores>;
 
    public constructor(
       @Inject private readonly wrapper: ClientNetworkBufferedWrapper,
@@ -37,7 +37,7 @@ export class ClientNetworkService {
          map(response => response.status),
          share(),
       );
-      this.dataStore$ = this.onEvent<Stores>(NetworkEvent.STORE);
+      this.storeData$ = this.onEvent<Stores>(NetworkEvent.STORE);
    }
 
    connect(host: string): void {
@@ -48,8 +48,8 @@ export class ClientNetworkService {
       this.wrapper.send(NetworkEvent.LOGIN, request);
    }
 
-   sendDataStore<T>(storeId: string, id: string, value: T): void {
-      const data = keyValueObject(storeId, keyValueObject(id, value));
+   sendStore<T>(storeId: string, key: string, value: T): void {
+      const data = keyValueObject(storeId, keyValueObject(key, value));
       this.wrapper.send(NetworkEvent.STORE, data);
    }
 
