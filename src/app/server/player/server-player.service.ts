@@ -6,4 +6,12 @@ export class ServerPlayerService extends SharedPlayerService {
    public constructor() {
       super();
    }
+
+   getNrOfPlayers(): number {
+      return 0;
+   }
+
+   add(id: string, requestedName: string): void {
+      //
+   }
 }

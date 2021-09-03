@@ -15,11 +15,15 @@ export class ClientNetworkThread<T> implements ClientNetworkUsingOnlyFunctions<T
    }
 
    onConnected(): Observable<void> {
-      return this.wrapper.connected$;
+      // null-ish data will not fire on the main thread for some reason
+      // @ts-ignore
+      return this.wrapper.connected$.pipe(map(() => ' '));
    }
 
    onDisconnected(): Observable<void> {
-      return this.wrapper.disconnected$;
+      // null-ish data will not fire on the main thread for some reason
+      // @ts-ignore
+      return this.wrapper.disconnected$.pipe(map(() => ' '));
    }
 
    onData(): Observable<T> {

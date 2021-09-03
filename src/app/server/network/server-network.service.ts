@@ -1,23 +1,23 @@
 import {Inject, Singleton} from 'typescript-ioc';
 import {ServerNetworkWrapper} from './server-network.wrapper';
 import {ServerNetworkMessage} from './server-network.model';
-import {NetworkEvent} from '../../shared/network/shared-network.model';
+import {LoginRequest, LoginResponse, NetworkEvent} from '../../shared/network/shared-network.model';
 import {filter, map, Observable} from 'rxjs';
 
 @Singleton
 export class ServerNetworkService {
-   private data$: Observable<ServerNetworkMessage>;
    readonly clientConnectedId$: Observable<string>;
    readonly clientDisconnectedId$: Observable<string>;
+   private data$: Observable<ServerNetworkMessage>;
    // readonly dataStore$: Observable<{ [key: string]: AllStores }>;
-   // readonly joinRequest$: Observable<ServerNetworkMessage<JoinRequest>>;
+   readonly loginRequest$: Observable<ServerNetworkMessage<LoginRequest>>;
 
    constructor(@Inject private readonly wrapper: ServerNetworkWrapper) {
       this.clientConnectedId$ = wrapper.clientConnectedId$;
       this.clientDisconnectedId$ = wrapper.clientDisconnectedId$;
       this.data$ = wrapper.clientData$;
+      this.loginRequest$ = this.onMessage<LoginRequest>(NetworkEvent.LOGIN);
       // this.dataStore$ = this.onEvent(NetworkEvent.DATA_STORE);
-      // this.joinRequest$ = this.onMessage<JoinRequest>(NetworkEvent.JOIN_REQUEST);
    }
 
    private onData<T>(event: NetworkEvent): Observable<T> {
@@ -31,7 +31,7 @@ export class ServerNetworkService {
       );
    }
 
-   // sendLoginResponse(user: string, response: JoinResponse): void {
-   //   this.wrapper.send(user, {event: NetworkEvent.JOIN_RESPONSE, value: response});
-   // }
+   sendLoginResponse(user: string, response: LoginResponse): void {
+      this.wrapper.send(user, {event: NetworkEvent.LOGIN, value: response});
+   }
 }
