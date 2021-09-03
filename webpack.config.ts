@@ -119,7 +119,7 @@ export const webpackConfiguration = (env: string, argv: { [key: string]: string 
                   ],
                },
             ]),
-            new CopyWebpackPlugin({patterns: [{from: target.assetDir, to: target.distAssetDir}]}),
+            // new CopyWebpackPlugin({patterns: [{from: target.assetDir, to: target.distAssetDir}]}),
          );
       } else {
          plugins.push(new HotModuleReplacementPlugin());
