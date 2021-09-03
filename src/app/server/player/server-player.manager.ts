@@ -20,5 +20,8 @@ export class ServerPlayerManager {
             });
          }
       });
+      network.clientDisconnectedId$.subscribe(id => {
+         service.remove(id);
+      })
    }
 }

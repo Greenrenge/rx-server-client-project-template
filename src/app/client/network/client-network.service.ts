@@ -9,6 +9,8 @@ import {
 } from '../../shared/network/shared-network.model';
 import {filter, map, Observable} from 'rxjs';
 import {share} from 'rxjs/operators';
+import {keyValueObject} from '../../shared/utils/utils';
+import {Stores} from '../../shared/store/store.model';
 
 @Singleton
 export class ClientNetworkService {
@@ -17,6 +19,7 @@ export class ClientNetworkService {
    private readonly joinResponse$: Observable<LoginResponse>;
    readonly loginOk$: Observable<SuccessfulLoginResponse>;
    readonly loginFailed$: Observable<LoginStatus>;
+   readonly dataStore$: Observable<Stores>;
 
    public constructor(
       @Inject private readonly wrapper: ClientNetworkBufferedWrapper,
@@ -26,6 +29,7 @@ export class ClientNetworkService {
       this.joinResponse$ = this.onEvent<LoginResponse>(NetworkEvent.LOGIN);
       this.loginOk$ = this.joinResponse$.pipe(
          filter((response) => response.status === LoginStatus.OK),
+         map(response => response as SuccessfulLoginResponse),
          share(),
       );
       this.loginFailed$ = this.joinResponse$.pipe(
@@ -33,6 +37,7 @@ export class ClientNetworkService {
          map(response => response.status),
          share(),
       );
+      this.dataStore$ = this.onEvent<Stores>(NetworkEvent.STORE);
    }
 
    connect(host: string): void {
@@ -41,6 +46,11 @@ export class ClientNetworkService {
 
    sendLoginRequest(request: LoginRequest): void {
       this.wrapper.send(NetworkEvent.LOGIN, request);
+   }
+
+   sendDataStore<T>(storeId: string, id: string, value: T): void {
+      const data = keyValueObject(storeId, keyValueObject(id, value));
+      this.wrapper.send(NetworkEvent.STORE, data);
    }
 
    private onEvent<T>(event: NetworkEvent): Observable<T> {

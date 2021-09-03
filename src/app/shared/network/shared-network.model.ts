@@ -1,3 +1,5 @@
+import {Player} from '../player/player.model';
+
 export interface NetworkMessage<T = NetworkPayload> {
    event: NetworkEvent;
    value: T;
@@ -29,5 +31,5 @@ export enum LoginStatus {
 }
 
 export interface SuccessfulLoginResponse extends LoginResponse {
-   // Player, etc.
+   player: Player;
 }

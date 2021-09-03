@@ -31,7 +31,7 @@ export class ServerNetworkWrapper {
    }
 
    send(clientId: string, message: NetworkMessage): void {
-      this.clientsById.get(clientId)?.emit(SocketEvent.DATA, this.encoder.encode(message));
+      this.clientsById.get(clientId)?.emit(SocketEvent.DATA, this.encoder.encode([message]));
    }
 
    disconnect(clientId: string): void {

@@ -10,7 +10,7 @@ export class ClientPlayerManager {
    ) {
       network.loginOk$.subscribe(response => {
          console.log('loginOk', response);
-         // this.service.setClientPlayer(response.player);
+         this.service.setClientPlayer(response.player);
       });
    }
 }

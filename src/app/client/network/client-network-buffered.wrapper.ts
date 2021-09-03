@@ -2,7 +2,7 @@ import {Inject, Singleton} from 'typescript-ioc';
 import {ClientNetworkThreadWrapper} from './client-network-thread.wrapper';
 import {ClientEventNetwork} from './client-network.model';
 import {NetworkDataType, NetworkEvent, NetworkMessage, NetworkPayload} from '../../shared/network/shared-network.model';
-import {map, mergeMap, Observable, Subject} from 'rxjs';
+import {map, mergeMap, Observable} from 'rxjs';
 import {ClientConfig} from '../config/client-config';
 import {TimeMapBuffer} from '../../shared/time-map-buffer/time-map-buffer';
 import {mapNetworkMessages} from './client-network-buffered.wrapper.utils';
@@ -13,9 +13,7 @@ export class ClientNetworkBufferedWrapper implements ClientEventNetwork<NetworkM
 
    readonly connected$: Observable<void>;
    readonly disconnected$: Observable<void>;
-
-   private readonly dataSubject = new Subject<NetworkMessage>();
-   readonly data$ = this.dataSubject.asObservable();
+   readonly data$: Observable<NetworkMessage>;
 
    public constructor(
       @Inject private readonly thread: ClientNetworkThreadWrapper<NetworkDataType>,
@@ -23,9 +21,8 @@ export class ClientNetworkBufferedWrapper implements ClientEventNetwork<NetworkM
    ) {
       this.connected$ = thread.connected$;
       this.disconnected$ = thread.disconnected$;
-      this.thread.data$
-         .pipe(mergeMap(data => data))
-         .subscribe(message => this.dataSubject.next(message));
+      this.data$ = thread.data$
+         .pipe(mergeMap(data => data));
       this.buffer.data$
          .pipe(map((data) => mapNetworkMessages(data)))
          .subscribe(messages => this.sendMessagesToThread(messages));
