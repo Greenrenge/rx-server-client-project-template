@@ -5,8 +5,7 @@ import {generateId} from '../../shared/utils/utils';
 import {ClientPlayerService} from '../player/client-player.service';
 import {Store} from '../../shared/store/store';
 import {PlayerStore} from '../../shared/player/player-store';
-import {filter} from 'rxjs/operators';
-import {map} from 'rxjs';
+import {mergeMap} from 'rxjs';
 
 @Singleton
 export class ClientNetworkManager {
@@ -40,21 +39,17 @@ export class ClientNetworkManager {
 
    // Updates from the network will be merged into the store
    private subscribeNetworkUpdateToStore<T>(store: Store<T>): void {
-      this.service.storeData$
+      this.service.onStoreEvent(store.getId())
          .pipe(
-            filter((stores) => Object.keys(stores)[0] === store.getId()),
-            map((stores) => Array.from(Object.entries(stores[store.getId()]))),
+            mergeMap((store) => Array.from(Object.entries(store.getAll()))),
          )
-         .subscribe((storeDataEntries) => {
-            storeDataEntries.forEach(([id, entity]) => {
-               // console.log(`Store ${store.getId()} received entity ${id}:`, entity);
-               // null values can go through the network but it means that it should be removed
-               if (entity === null) {
-                  store.remove(id);
-               } else {
-                  store.update(id, entity);
-               }
-            });
+         .subscribe(([id, entity]: [string, T]) => {
+            // null values can go through the network but it means that it should be removed
+            if (entity === null) {
+               store.remove(id);
+            } else {
+               store.update(id, entity);
+            }
          });
    }
 }
