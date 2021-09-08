@@ -10,8 +10,7 @@ import {
 import {filter, map, mergeMap, Observable} from 'rxjs';
 import {share} from 'rxjs/operators';
 import {keyValueObject} from '../../shared/utils/utils';
-import {Stores} from '../../shared/store/store.model';
-import {Store} from '../../shared/store/store';
+import {StoreDto, StoresDto} from '../../shared/store/store.model';
 
 @Singleton
 export class ClientNetworkService {
@@ -20,7 +19,7 @@ export class ClientNetworkService {
    private readonly joinResponse$: Observable<LoginResponse>;
    readonly loginOk$: Observable<SuccessfulLoginResponse>;
    readonly loginFailed$: Observable<LoginStatus>;
-   readonly storesData$: Observable<Stores>;
+   readonly storesData$: Observable<StoresDto>;
 
    public constructor(
       @Inject private readonly wrapper: ClientNetworkBufferedWrapper,
@@ -38,7 +37,7 @@ export class ClientNetworkService {
          map(response => response.status),
          share(),
       );
-      this.storesData$ = this.onEvent<Stores>(NetworkEvent.STORE);
+      this.storesData$ = this.onEvent<StoresDto>(NetworkEvent.STORE);
    }
 
    connect(host: string): void {
@@ -54,12 +53,13 @@ export class ClientNetworkService {
       this.wrapper.send(NetworkEvent.STORE, data);
    }
 
-   onStoreEvent<T extends Store<unknown>>(storeId: string): Observable<T> {
+   onStoreDto<T>(targetStoreId: string): Observable<StoreDto<T>> {
       return this.storesData$.pipe(
-         mergeMap(store => Object.values(store)),
-         filter(store => store.getId() === storeId),
+         mergeMap(store => Array.from(Object.entries(store))),
+         filter(([storeId]) => storeId === targetStoreId),
+         map(([_, storeData]) => storeData as StoreDto<T>),
          share(),
-      ) as Observable<T>;
+      );
    }
 
    private onEvent<T>(event: NetworkEvent): Observable<T> {

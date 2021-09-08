@@ -79,7 +79,7 @@ export abstract class Store<T> {
 
    private addOrChangeEntity(id: string, entity: StoreEntity<T>): void {
       const hadEntity = this.entities.has(id);
-      this.entities.set(id, entity.value);
+      this.entities.set(id, entity.value as T);
       if (!hadEntity) {
          this.addedSubject.next(entity);
       }

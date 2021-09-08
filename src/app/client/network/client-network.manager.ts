@@ -9,6 +9,8 @@ export class ClientNetworkManager {
       @Inject private readonly service: ClientNetworkService,
    ) {
       service.connected$.subscribe(() => {
+         console.log('Connected to the server');
+         console.log('Sending login request..');
          service.sendLoginRequest({
             userName: generateId(),
          });

@@ -28,9 +28,9 @@ export class ClientStoreManager {
 
    // Updates from the network will be merged into the store
    private subscribeNetworkUpdateToStore<T>(store: Store<T>): void {
-      this.network.onStoreEvent(store.getId())
+      this.network.onStoreDto<T>(store.getId())
          .pipe(
-            mergeMap((store) => Array.from(Object.entries(store.getAll()))),
+            mergeMap((storeData) => Array.from(Object.entries(storeData))),
          )
          .subscribe(([key, entity]) => updateOrRemove(store, key, entity));
    }

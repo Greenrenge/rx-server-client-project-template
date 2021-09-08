@@ -4,14 +4,14 @@ import {ServerNetworkMessage} from './server-network.model';
 import {LoginRequest, LoginResponse, NetworkEvent} from '../../shared/network/shared-network.model';
 import {filter, map, Observable} from 'rxjs';
 import {keyValueObject} from '../../shared/utils/utils';
-import {StoreData, Stores} from '../../shared/store/store.model';
+import {StoreDto, StoresDto} from '../../shared/store/store.model';
 
 @Singleton
 export class ServerNetworkService {
    readonly clientConnectedId$: Observable<string>;
    readonly clientDisconnectedId$: Observable<string>;
    private data$: Observable<ServerNetworkMessage>;
-   readonly dataStore$: Observable<Stores>;
+   readonly dataStore$: Observable<StoresDto>;
    readonly loginRequest$: Observable<ServerNetworkMessage<LoginRequest>>;
 
    constructor(@Inject private readonly wrapper: ServerNetworkWrapper) {
@@ -41,7 +41,7 @@ export class ServerNetworkService {
       this.sendDataStore(users, storeId, keyValueObject(id, value));
    }
 
-   sendDataStore<T>(clients: string[], storeId: string, data: StoreData<T>): void {
+   sendDataStore<T>(clients: string[], storeId: string, data: StoreDto<T>): void {
       clients.forEach((client) =>
          this.wrapper.send(client, {
             event: NetworkEvent.STORE,

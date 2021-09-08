@@ -9,7 +9,7 @@ export class ClientPlayerManager {
       @Inject private readonly network: ClientNetworkService,
    ) {
       network.loginOk$.subscribe(response => {
-         console.log('loginOk', response);
+         console.log('Login OK', response);
          this.service.setClientPlayer(response.player);
       });
    }
