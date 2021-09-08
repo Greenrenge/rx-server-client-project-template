@@ -15,6 +15,7 @@
       "alwaysStrict": true,
       "downlevelIteration": true,
       "baseUrl": "./",
+      "strictNullChecks": true
    },
    "include": [
       "src/app/**/*.ts"
