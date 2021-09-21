@@ -1,12 +1,25 @@
-﻿/.idea
-*/.*
+﻿*/.*
 **/$*
 **/bin/*
 **/build/*
 **/logs/*
-**/.idea
 *.log
 *.info
+.eslintcache
+
+# vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# IntelliJ
+/.idea
+**/.idea
+
+# App specific
 **/node_modules/
 **/dist
-.eslintcache
