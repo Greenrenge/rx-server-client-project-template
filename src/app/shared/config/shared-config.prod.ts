@@ -1,3 +1,4 @@
-import { CommonSharedConfig } from './common-shared-config';
+import {CommonSharedConfig} from './common-shared-config';
 
-export class SharedConfig extends CommonSharedConfig {}
+export class SharedConfig extends CommonSharedConfig {
+}
