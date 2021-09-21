@@ -31,21 +31,23 @@ export class ClientSocketIoWrapper<T> extends SharedSocketWrapper implements Cli
    disconnect(): void {
       if (this.socket) {
          this.socket.disconnect();
-         this.socket = null;
+         this.socket = undefined;
          this.disconnectSubject.next();
       }
    }
 
    private initListeners(): void {
-      fromEvent(this.socket, SocketEvent.CONNECT)
-         .pipe(takeUntil(this.disconnect$))
-         .subscribe(() => this.connectedSubject.next());
-      fromEvent(this.socket, SocketEvent.DISCONNECT)
-         .pipe(takeUntil(this.disconnect$))
-         .subscribe(() => this.disconnectedSubject.next());
-      fromEvent(this.socket, SocketEvent.DATA)
-         .pipe(takeUntil(this.disconnect$))
-         .subscribe((data: T) => this.dataSubject.next(data));
+      if (this.socket) {
+         fromEvent(this.socket, SocketEvent.CONNECT)
+            .pipe(takeUntil(this.disconnect$))
+            .subscribe(() => this.connectedSubject.next());
+         fromEvent(this.socket, SocketEvent.DISCONNECT)
+            .pipe(takeUntil(this.disconnect$))
+            .subscribe(() => this.disconnectedSubject.next());
+         fromEvent(this.socket, SocketEvent.DATA)
+            .pipe(takeUntil(this.disconnect$))
+            .subscribe((data: T) => this.dataSubject.next(data));
+      }
    }
 
    isConnected(): boolean {
@@ -53,6 +55,6 @@ export class ClientSocketIoWrapper<T> extends SharedSocketWrapper implements Cli
    }
 
    send(data: T): void {
-      this.socket.emit(SocketEvent.DATA, data);
+      this.socket?.emit(SocketEvent.DATA, data);
    }
 }

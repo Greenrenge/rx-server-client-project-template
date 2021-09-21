@@ -69,6 +69,9 @@ export class TimeMapBuffer<K, V> {
    }
 
    private mergeValue<V>(event: K, value: V): V {
+      if (!this.defaultValue) {
+         throw new Error('TimeMapBuffer has no default value');
+      }
       return deepmerge.all([this.data.get(event) ?? this.defaultValue, value]);
    }
 }
