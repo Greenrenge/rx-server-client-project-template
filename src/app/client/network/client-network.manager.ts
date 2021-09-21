@@ -9,15 +9,16 @@ export class ClientNetworkManager {
       @Inject private readonly service: ClientNetworkService,
    ) {
       service.connected$.subscribe(() => {
-         console.log('Connected to the server');
-         console.log('Sending login request..');
+         console.log('Connected to the server, Sending login request..');
          service.sendLoginRequest({
             userName: generateId(),
          });
       });
-      service.loginOk$.subscribe(() => {
+      service.loginOk$.subscribe(response => {
+         console.log('Login OK', response);
       });
-      service.loginFailed$.subscribe(() => {
+      service.loginFailed$.subscribe(response => {
+         console.log('Login Failed', response);
       });
       this.service.connect(ClientConfig.SERVER_HOSTS[0].url);
    }
