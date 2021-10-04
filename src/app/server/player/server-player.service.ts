@@ -11,7 +11,7 @@ export class ServerPlayerService extends SharedPlayerService {
    }
 
    getNrOfPlayers(): number {
-      return 0;
+      return this.store.getSize();
    }
 
    add(id: string, requestedName: string): void {

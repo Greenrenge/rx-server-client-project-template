@@ -173,4 +173,23 @@ describe('Store', () => {
          });
       });
    });
+
+   describe('size', () => {
+      it('should be 0 by default', () => {
+         expect(store.getSize()).toEqual(0);
+      });
+
+      it('should be 1 after adding one', () => {
+         store.commit('id', 'value');
+         expect(store.getSize()).toEqual(1);
+      });
+
+      it('should be 2 after remove one from three', () => {
+         store.commit('1', '1');
+         store.commit('2', '2');
+         store.commit('3', '3');
+         store.remove('3')
+         expect(store.getSize()).toEqual(2);
+      });
+   });
 });

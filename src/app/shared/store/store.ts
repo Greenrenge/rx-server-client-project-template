@@ -77,6 +77,10 @@ export abstract class Store<T> {
       this.entities.clear();
    }
 
+   getSize(): number {
+      return this.entities.size;
+   }
+
    private addOrChangeEntity(id: string, entity: StoreEntity<T>): void {
       const hadEntity = this.entities.has(id);
       this.entities.set(id, entity.value as T);
